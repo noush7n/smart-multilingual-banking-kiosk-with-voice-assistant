@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Help & Guide | Smart Bank Kiosk</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Baloo+2:wght@600;700;800&family=Noto+Sans+Devanagari:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Smart Banking Kiosk - shared styles for every task page (used by templates/task_base.html).
+   The page colour is set with <body class="blue|green|orange|pink|yellow"> and matches the home-page card. */
+        :root {
+            --ink: #2b2140;
+            --plum: #46395f;
+            --plum2: #574874;
+            --edge: #7d6ca0;
+            --paper: #f5f2f9;
+            --sand: #e9ddbf;
+            --amber: #c98a1e;
+            --soft: #d3c9e3;
+            --c: #2f5d8a;
+            --cd: #1f4467;
+            --gap: clamp(.6rem, 1.9vh, 1.25rem);
+            --r: clamp(18px, 3vh, 28px);
+        }
+
+        body.blue {
+            --c: #2f5d8a;
+            --cd: #1f4467;
+        }
+
+        body.green {
+            --c: #2f7a4f;
+            --cd: #1f5736;
+        }
+
+        body.orange {
+            --c: #a84e14;
+            --cd: #7a3809;
+        }
+
+        body.pink {
+            --c: #a1456f;
+            --cd: #752f50;
+        }
+
+        body.yellow {
+            --c: #e3c25a;
+            --cd: #b8972f;
+        }
+
+        /* The page never scrolls: it always fits the screen */
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Atkinson Hyperlegible", "Noto Sans Devanagari", "Segoe UI", sans-serif;
+            color: var(--ink);
+            background-color: var(--paper);
+            background-image: radial-gradient(#d8cfe6 1.4px, transparent 1.4px);
+            background-size: 26px 26px;
+            user-select: none;
+            touch-action: manipulation;
+            font-size: clamp(1.05rem, 2.5vh, 1.35rem);
+        }
+
+        html[lang="hi"] body {
+            line-height: 1.45;
+        }
+
+        .display {
+            font-family: "Baloo 2", "Noto Sans Devanagari", sans-serif;
+        }
+
+        :focus-visible {
+            outline: 5px solid var(--amber);
+            outline-offset: 4px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        .shell {
+            height: 100dvh;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+        }
+
+        /* ---------- top bar ---------- */
+        .bar {
+            background: var(--plum);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: clamp(.5rem, 1.6vh, .9rem) clamp(1rem, 2vw, 2rem);
+        }
+
+        .btn-home {
+            min-height: clamp(52px, 8vh, 66px);
+            padding: 0 1.4rem;
+            border-radius: 20px;
+            background: var(--sand);
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            text-decoration: none;
+            border: 3px solid transparent;
+        }
+
+        .btn-home:hover {
+            background: #f3e9cd;
+            color: var(--ink);
+        }
+
+        .title {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+            font-size: clamp(1.3rem, 3.6vh, 2.1rem);
+            font-weight: 700;
+            margin: 0;
+            min-width: 0;
+        }
+
+        .swatch {
+            flex: none;
+            width: 1.1em;
+            height: 1.1em;
+            border-radius: 50%;
+            background: var(--c);
+            border: 3px solid #fff;
+        }
+
+        .demo {
+            background: var(--amber);
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 999px;
+            padding: .2rem .8rem;
+        }
+
+        .lang {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 24px;
+            background: rgba(20, 12, 36, .35);
+            border: 2px solid var(--edge);
+        }
+
+        .lang .btn {
+            min-height: clamp(44px, 7vh, 56px);
+            min-width: 96px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: 0;
+            color: #fff;
+            background: transparent;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lang .btn-check:checked+.btn {
+            background: #fff;
+            color: var(--ink);
+        }
+
+        /* ---------- layout ---------- */
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(290px, 3fr) 8fr;
+            gap: var(--gap);
+            padding: var(--gap) clamp(1rem, 2vw, 2rem);
+            min-height: 0;
+        }
+
+        .work {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap);
+            min-height: 0;
+        }
+
+        /* ---------- voice guide (same orb as the home page) ---------- */
+        .guide {
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
+            background: var(--plum);
+            color: #fff;
+            border-radius: var(--r);
+            padding: var(--gap);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(.8rem, 2.4vh, 1.5rem);
+        }
+
+        .orb-wrap {
+            position: relative;
+            width: clamp(100px, 22vh, 190px);
+            aspect-ratio: 1;
+            display: grid;
+            place-items: center;
+            flex: none;
+        }
+
+        .orb-wave {
+            position: absolute;
+            inset: 6%;
+            border-radius: 50%;
+            border: 3px solid rgba(233, 221, 191, .6);
+            opacity: 0;
+        }
+
+        .is-speaking .orb-wave {
+            animation: wave 2.4s ease-out infinite;
+        }
+
+        .orb-wave.w2 {
+            animation-delay: .8s;
+        }
+
+        .orb-wave.w3 {
+            animation-delay: 1.6s;
+        }
+
+        @keyframes wave {
+            0% {
+                transform: scale(1);
+                opacity: .75;
+            }
+
+            100% {
+                transform: scale(1.6);
+                opacity: 0;
+            }
+        }
+
+        .orb {
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            background: var(--sand);
+            box-shadow: 0 0 0 clamp(6px, 1.3vh, 12px) rgba(233, 221, 191, .22), 0 18px 40px rgba(20, 12, 36, .4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5%;
+        }
+
+        .bar-eq {
+            width: 7.5%;
+            height: var(--h);
+            border-radius: 99px;
+            background: var(--plum);
+        }
+
+        .is-speaking .bar-eq {
+            animation: eq .9s ease-in-out infinite;
+            animation-delay: var(--d);
+        }
+
+        @keyframes eq {
+
+            0%,
+            100% {
+                transform: scaleY(.45);
+            }
+
+            50% {
+                transform: scaleY(1.15);
+            }
+        }
+
+        .caption {
+            position: relative;
+            width: 100%;
+            margin: 0;
+            min-height: 3.2em;
+            background: var(--plum2);
+            border: 2px solid var(--edge);
+            border-radius: 22px;
+            padding: clamp(.5rem, 1.6vh, .9rem) .9rem;
+            font-size: clamp(1.05rem, 2.5vh, 1.35rem);
+            line-height: 1.3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .6rem;
+            text-align: center;
+        }
+
+        .caption::before {
+            content: "";
+            position: absolute;
+            top: -11px;
+            left: calc(50% - 10px);
+            width: 18px;
+            height: 18px;
+            background: var(--plum2);
+            border-left: 2px solid var(--edge);
+            border-top: 2px solid var(--edge);
+            transform: rotate(45deg);
+        }
+
+        .dot {
+            flex: none;
+            width: 1.1em;
+            height: 1.1em;
+            border-radius: 50%;
+            background: var(--dot, var(--sand));
+            border: 3px solid #fff;
+        }
+
+        .btn-hear {
+            min-height: clamp(52px, 8vh, 66px);
+            width: 100%;
+            border-radius: 20px;
+            border: 4px solid transparent;
+            background: var(--sand);
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .is-speaking .btn-hear {
+            border-color: var(--amber);
+        }
+
+        /* ---------- steps + stage ---------- */
+        .stepper {
+            display: flex;
+            gap: .6rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .stepper:empty {
+            display: none;
+        }
+
+        .stepper li {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            padding: .25rem;
+            border-bottom: 8px solid #cfc4e0;
+            font-weight: 700;
+            color: #6a5d85;
+            font-size: clamp(1rem, 2.4vh, 1.25rem);
+        }
+
+        .stepper .n {
+            display: inline-grid;
+            place-items: center;
+            width: 2em;
+            height: 2em;
+            border-radius: 50%;
+            border: 3px solid currentColor;
+        }
+
+        .stepper li.active {
+            border-color: var(--c);
+            color: var(--ink);
+        }
+
+        .stepper li.active .n {
+            background: var(--c);
+            border-color: var(--c);
+            color: #fff;
+        }
+
+        .stepper li.done {
+            border-color: #2f7a4f;
+            color: #2f7a4f;
+        }
+
+        .stepper li.done .n {
+            background: #2f7a4f;
+            border-color: #2f7a4f;
+            color: #fff;
+        }
+
+        .stage {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            background: #fff;
+            border: 3px solid #d8cfe6;
+            border-radius: var(--r);
+            padding: clamp(.9rem, 2.6vh, 1.8rem);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .split {
+            height: 100%;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--gap);
+            align-items: center;
+        }
+
+        .split>svg {
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+        }
+
+        .h1 {
+            font-size: clamp(1.8rem, 5vh, 3rem);
+            font-weight: 700;
+            line-height: 1.12;
+            margin: 0 0 .5rem;
+        }
+
+        .lead {
+            font-size: clamp(1.2rem, 3.2vh, 1.7rem);
+            margin: 0 0 1rem;
+        }
+
+        .notice {
+            border-left: 8px solid #a3201a;
+            background: #fbeeee;
+            padding: .9rem 1.1rem;
+            border-radius: 12px;
+            font-size: clamp(1.05rem, 2.5vh, 1.25rem);
+        }
+
+        .notice.ok {
+            border-color: #2f7a4f;
+            background: #eaf5ee;
+        }
+
+        .pbar {
+            position: relative;
+            height: clamp(30px, 5vh, 40px);
+            border-radius: 20px;
+            background: #e6edf5;
+            border: 3px solid var(--c);
+            overflow: hidden;
+        }
+
+        .pbar i {
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 0;
+            background: var(--c);
+            transition: width .2s;
+        }
+
+        .pbar b {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            color: var(--ink);
+            font-size: 1.1rem;
+            mix-blend-mode: normal;
+        }
+
+        /* ---------- action buttons ---------- */
+        .actions {
+            display: flex;
+            gap: var(--gap);
+        }
+
+        .actions:empty {
+            display: none;
+        }
+
+        .btn-k {
+            flex: 1;
+            min-height: clamp(60px, 10vh, 84px);
+            border-radius: 22px;
+            font-size: clamp(1.25rem, 3vh, 1.6rem);
+            font-weight: 700;
+            border: 4px solid transparent;
+            color: #fff;
+            background: var(--c);
+            box-shadow: 0 6px 0 var(--cd);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .6rem;
+            transition: transform .1s, box-shadow .1s;
+        }
+
+        body.yellow .btn-k {
+            color: var(--ink);
+        }
+
+        .btn-k:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 var(--cd);
+        }
+
+        .btn-k.ghost {
+            background: #fff;
+            color: var(--ink);
+            border-color: var(--ink);
+            box-shadow: 0 6px 0 #cfc4e0;
+        }
+
+        .btn-k:disabled {
+            opacity: .45;
+            box-shadow: none;
+        }
+
+        /* ---------- narrow / portrait screens ---------- */
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto minmax(0, 1fr);
+            }
+
+            .guide {
+                flex-direction: row;
+                padding: .7rem;
+                gap: .8rem;
+            }
+
+            .orb-wrap {
+                width: 78px;
+            }
+
+            .caption {
+                text-align: left;
+                justify-content: flex-start;
+                min-height: 0;
+                font-size: 1.1rem;
+            }
+
+            .caption::before,
+            .btn-hear {
+                display: none;
+            }
+
+            .split {
+                grid-template-columns: 1fr;
+            }
+
+            .split>svg {
+                max-height: 24vh;
+            }
+
+            .stepper .lb {
+                display: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .is-speaking .orb-wave,
+            .is-speaking .bar-eq {
+                animation: none;
+            }
+
+            .btn-k {
+                transition: none;
+            }
+        }
+    </style>
+
+    <style>
+        .stage.help {
+            display: grid;
+            grid-template-columns: minmax(250px, 4fr) 6fr;
+            gap: var(--gap);
+            justify-content: stretch;
+        }
+
+        .topics {
+            display: grid;
+            grid-template-rows: repeat(5, minmax(0, 1fr));
+            gap: clamp(.4rem, 1.4vh, .8rem);
+            min-height: 0;
+        }
+
+        .topic {
+            display: flex;
+            align-items: center;
+            gap: .9rem;
+            text-align: left;
+            border-radius: 20px;
+            border: 4px solid transparent;
+            background: var(--c);
+            color: var(--ink);
+            box-shadow: 0 5px 0 var(--cd);
+            padding: 0 1rem;
+            font-weight: 700;
+            font-size: clamp(1.05rem, 2.7vh, 1.45rem);
+            line-height: 1.15;
+            min-height: 0;
+            transition: transform .1s, box-shadow .1s;
+        }
+
+        .topic:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 var(--cd);
+        }
+
+        .topic .num {
+            flex: none;
+            width: 2em;
+            height: 2em;
+            border-radius: 50%;
+            background: var(--ink);
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-size: 1.1em;
+        }
+
+        .topic.on {
+            border-color: var(--ink);
+        }
+
+        .topic.spot {
+            outline: 6px solid var(--ink);
+            outline-offset: 3px;
+        }
+
+        .detail {
+            background: #fbf6e3;
+            border-radius: 22px;
+            padding: clamp(.9rem, 2.6vh, 1.8rem);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: clamp(.5rem, 1.6vh, 1rem);
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .detail h2 {
+            font-size: clamp(1.5rem, 4.2vh, 2.4rem);
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.12;
+        }
+
+        .detail ol {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: clamp(.4rem, 1.4vh, .9rem);
+        }
+
+        .detail li {
+            display: flex;
+            gap: .8rem;
+            align-items: flex-start;
+            font-size: clamp(1.1rem, 2.9vh, 1.5rem);
+            line-height: 1.3;
+            border-radius: 12px;
+            padding: .2rem .3rem;
+        }
+
+        .detail li b {
+            flex: none;
+            width: 1.8em;
+            height: 1.8em;
+            border-radius: 50%;
+            background: var(--c);
+            color: var(--ink);
+            display: grid;
+            place-items: center;
+            font-size: .9em;
+            border: 3px solid var(--cd);
+        }
+
+        .detail li.now {
+            background: #f3e3a0;
+        }
+
+        .hint {
+            font-size: clamp(1.2rem, 3.2vh, 1.7rem);
+            text-align: center;
+            margin: 0;
+        }
+
+        @media (max-width: 900px) {
+            .stage.help {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto minmax(0, 1fr);
+            }
+
+            .topics {
+                grid-template-rows: none;
+                grid-auto-rows: 52px;
+            }
+        }
+    </style>
+
+</head>
+
+<body class="yellow">
+    <div class="shell">
+
+        <header class="bar">
+            <a class="btn-home" href="index.html">&#8962; <span data-ui="home">Home</span></a>
+            <h1 class="title display"><span class="swatch"></span><span id="pageTitle"></span></h1>
+            <span class="demo" id="demoTag" data-ui="demo" hidden>Demo data</span>
+            <div class="lang" role="group" aria-label="Language / भाषा">
+                <input type="radio" class="btn-check" name="lang" id="langEn" autocomplete="off" checked>
+                <label class="btn" for="langEn">English</label>
+                <input type="radio" class="btn-check" name="lang" id="langHi" autocomplete="off">
+                <label class="btn" for="langHi" lang="hi">हिन्दी</label>
+            </div>
+        </header>
+
+        <div class="layout">
+            <!-- voice guide: orb + live captions (no controls needed, it speaks by itself) -->
+            <aside class="guide" aria-live="polite">
+                <div class="orb-wrap" aria-hidden="true">
+                    <span class="orb-wave"></span><span class="orb-wave w2"></span><span class="orb-wave w3"></span>
+                    <div class="orb">
+                        <span class="bar-eq" style="--h:26%;--d:0s"></span><span class="bar-eq"
+                            style="--h:46%;--d:.15s"></span><span class="bar-eq" style="--h:66%;--d:.3s"></span><span
+                            class="bar-eq" style="--h:46%;--d:.45s"></span><span class="bar-eq"
+                            style="--h:26%;--d:.6s"></span>
+                    </div>
+                </div>
+                <p class="caption"><span class="dot" id="capDot" hidden></span><span id="capText"></span></p>
+                <button type="button" class="btn-hear" id="hearBtn">&#128266; <span data-ui="hear">Hear
+                        again</span></button>
+            </aside>
+
+            <main class="work">
+                <ol class="stepper" id="stepper" aria-label="Progress"></ol>
+                <section class="stage" id="stage">
+                    <div class="topics" id="topics"></div>
+                    <div class="detail" id="detail"></div>
+                </section>
+                <div class="actions" id="actions"></div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        /* Smart Banking Kiosk - shared logic for every task page.
+           Provides: language (kioskLang), one-way voice guide with live captions, stepper,
+           API helper with demo fallback (frontend works before the backend exists), idle-return-to-home. */
+        (() => {
+            "use strict";
+            const $ = (id) => document.getElementById(id);
+            const ls = {
+                get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch { /* ignore */ } }
+            };
+            const LOCALE = { en: "en-IN", hi: "hi-IN" };
+            const UI = {
+                en: {
+                    home: "Home", hear: "Hear again", demo: "Demo data", idle: "Hello! I am your voice guide.",
+                    bye: "No activity. Going back to the home page."
+                },
+                hi: {
+                    home: "होम", hear: "फिर से सुनें", demo: "डेमो डेटा", idle: "नमस्ते! मैं आपका आवाज़ सहायक हूँ।",
+                    bye: "कोई गतिविधि नहीं हुई। होम पेज पर लौट रहे हैं।"
+                }
+            };
+            const HOME_AFTER_MS = 90000;   // return to the home page after 90 s without a touch
+            const REPEAT_MS = 30000;       // the guide repeats itself after 30 s of silence
+
+            const K = window.Kiosk = {
+                lang: ls.get("kioskLang") === "hi" ? "hi" : "en",
+                busy: false,        // set true while something is processing (blocks idle-home and auto-repeat)
+                demo: false,        // becomes true when any API call fell back to demo data
+                render: null,       // page-supplied function, called on load and when the language changes
+                spotFn: null,       // optional: page highlights the thing being spoken about (key)
+                _tok: 0, _rep: null, _last: null
+            };
+
+            /* ---------- small helpers ---------- */
+            K.t = (o) => (o && typeof o === "object" && K.lang in o ? o[K.lang] : o);
+            K.ui = (k) => UI[K.lang][k];
+            K.locale = () => LOCALE[K.lang];
+            K.setTitle = (o) => { const t = K.t(o); $("pageTitle").textContent = t; document.title = t + " | Smart Bank Kiosk"; };
+            K.stepper = (labels, cur) => {
+                $("stepper").innerHTML = labels.map((l, i) =>
+                    `<li class="${i + 1 < cur ? "done" : i + 1 === cur ? "active" : ""}"><span class="n">${i + 1 < cur ? "&#10003;" : i + 1}</span><span class="lb">${K.t(l)}</span></li>`).join("");
+            };
+
+            /* ---------- voice output ---------- */
+            const synth = window.speechSynthesis;
+            let voices = [], started = false;
+            if (synth) { voices = synth.getVoices(); synth.onvoiceschanged = () => { voices = synth.getVoices(); }; }
+            function pickVoice() {
+                const code = K.lang === "hi" ? "hi" : "en";
+                const m = voices.filter((v) => v.lang.toLowerCase().startsWith(code));
+                return (K.lang === "en" && m.find((v) => v.lang.toLowerCase() === "en-in")) || m[0] || null;
+            }
+            function caption(text, color) {
+                $("capText").textContent = text || UI[K.lang].idle;
+                const dot = $("capDot");
+                dot.hidden = !(text && color);
+                if (text && color) dot.style.setProperty("--dot", color);
+            }
+
+            // items: a string, or {text, key?, color?, onStart?}; several items are read one after another.
+            // opts: {repeat: ms (0 = never repeat), onDone: fn}
+            K.say = (items, opts = {}) => {
+                if (!synth) return;
+                const list = [].concat(items).map((i) => (typeof i === "string" ? { text: i } : i));
+                K._last = { items: list, opts };
+                synth.cancel(); clearTimeout(K._rep);
+                const mine = ++K._tok;
+                const finish = (err) => {
+                    document.body.classList.remove("is-speaking"); caption(null);
+                    if (K.spotFn) K.spotFn(null);
+                    if (opts.onDone) opts.onDone(err);
+                    if (!err && !K.busy && opts.repeat !== 0) K._rep = setTimeout(K.replay, opts.repeat || REPEAT_MS);
+                };
+                const next = (i) => {
+                    if (mine !== K._tok) return;
+                    if (i >= list.length) { finish(false); return; }
+                    const u = new SpeechSynthesisUtterance(list[i].text);
+                    u.lang = LOCALE[K.lang]; u.rate = 0.82;
+                    const v = pickVoice(); if (v) u.voice = v;
+                    u.onstart = () => {
+                        started = true;
+                        if (mine !== K._tok) return;
+                        document.body.classList.add("is-speaking");
+                        caption(list[i].text, list[i].color);
+                        if (K.spotFn) K.spotFn(list[i].key || null);
+                        if (list[i].onStart) list[i].onStart();
+                    };
+                    u.onend = () => next(i + 1);
+                    u.onerror = () => { if (mine === K._tok) finish(true); };
+                    synth.speak(u);
+                };
+                next(0);
+            };
+            K.replay = () => { if (K._last) K.say(K._last.items, K._last.opts); };
+            K.stop = () => {
+                K._tok++; clearTimeout(K._rep); if (synth) synth.cancel();
+                document.body.classList.remove("is-speaking"); caption(null);
+            };
+
+            /* ---------- backend calls (demo fallback until the Flask API exists) ---------- */
+            // Returns {ok, data, demo}. A 404 or a network error uses `demo` data, so pages work without the backend.
+            K.api = async (url, opts = {}, demo) => {
+                const ctrl = new AbortController();
+                const timer = setTimeout(() => ctrl.abort(), opts.timeout || 8000);
+                try {
+                    const res = await fetch(url, { ...opts, signal: ctrl.signal });
+                    clearTimeout(timer);
+                    if (res.ok) return { ok: true, data: await res.json(), demo: false };
+                    if (res.status !== 404) return { ok: false, data: null, demo: false };
+                } catch { clearTimeout(timer); }
+                if (demo === undefined) return { ok: false, data: null, demo: false };
+                K.demo = true; $("demoTag").hidden = false;
+                return { ok: true, data: demo, demo: true };
+            };
+
+            /* ---------- start-up ---------- */
+            function applyUI() {
+                document.documentElement.lang = K.lang;
+                document.querySelectorAll("[data-ui]").forEach((n) => { n.textContent = UI[K.lang][n.dataset.ui]; });
+            }
+            K.init = (renderFn) => {
+                K.render = renderFn;
+                $(K.lang === "hi" ? "langHi" : "langEn").checked = true;
+                const setLang = (l) => { K.stop(); K.lang = l; ls.set("kioskLang", l); applyUI(); K.render(); };
+                $("langEn").addEventListener("change", () => setLang("en"));
+                $("langHi").addEventListener("change", () => setLang("hi"));
+                $("hearBtn").addEventListener("click", K.replay);
+                applyUI(); caption(null); K.render();
+            };
+
+            // idle: back to the home page; first touch starts the voice if the browser blocked autoplay
+            let idleT = null;
+            const resetIdle = () => {
+                clearTimeout(idleT);
+                idleT = setTimeout(() => {
+                    if (K.busy) { resetIdle(); return; }
+                    K.say(UI[K.lang].bye, { repeat: 0 });
+                    setTimeout(() => { window.location.href = "index.html"; }, 3500);
+                }, HOME_AFTER_MS);
+            };
+            document.addEventListener("pointerdown", () => {
+                resetIdle();
+                if (!started && K._last) K.replay();
+                else if (!document.body.classList.contains("is-speaking")) {
+                    clearTimeout(K._rep); if (K._last && !K.busy) K._rep = setTimeout(K.replay, REPEAT_MS);
+                }
+            }, true);
+            document.addEventListener("keydown", resetIdle, true);
+            window.addEventListener("pagehide", K.stop);
+            resetIdle();
+        })();
+
+    </script>
+
+    <script>
+        (() => {
+            "use strict";
+            const $ = (id) => document.getElementById(id);
+            $("stage").classList.add("help");
+
+            const TOPICS = [
+                {
+                    key: "how", t: { en: "How to use this kiosk", hi: "कियोस्क कैसे चलाएँ" }, lines: [
+                        { en: "Listen to the voice guide. It speaks by itself.", hi: "आवाज़ सहायक अपने आप बोलता है, उसे सुनें।" },
+                        { en: "Touch the button of the colour you hear.", hi: "जो रंग सुनाई दे, उस रंग का बटन छुएँ।" },
+                        { en: "Follow the steps shown on the screen.", hi: "स्क्रीन पर दिखे कदमों का पालन करें।" },
+                        { en: "Press Home to start again.", hi: "दोबारा शुरू करने के लिए होम दबाएँ।" }]
+                },
+                {
+                    key: "services", t: { en: "What can I do here?", hi: "यहाँ मैं क्या कर सकता हूँ?" }, lines: [
+                        { en: "Print your passbook with the blue button.", hi: "नीले बटन से पासबुक छपवाएँ।" },
+                        { en: "See your balance with the green button.", hi: "हरे बटन से बैलेंस देखें।" },
+                        { en: "Deposit a cheque with the orange button.", hi: "नारंगी बटन से चेक जमा करें।" },
+                        { en: "Scan Aadhaar or PAN with the pink button. This kiosk does not give cash.", hi: "गुलाबी बटन से आधार या पैन स्कैन करें। यह कियोस्क नकद नहीं देता।" }]
+                },
+                {
+                    key: "stuck", t: { en: "Passbook is stuck", hi: "पासबुक अटक गई" }, lines: [
+                        { en: "Do not pull the passbook hard.", hi: "पासबुक को ज़ोर से न खींचें।" },
+                        { en: "Wait for one minute.", hi: "एक मिनट प्रतीक्षा करें।" },
+                        { en: "If it stays stuck, ask the bank staff for help.", hi: "अटकी रहे तो बैंक कर्मचारी से मदद माँगें।" }]
+                },
+                {
+                    key: "lang", t: { en: "Change language", hi: "भाषा बदलें" }, lines: [
+                        { en: "Touch English or हिन्दी at the top right of the screen.", hi: "स्क्रीन के ऊपर दाईं ओर English या हिन्दी छुएँ।" },
+                        { en: "The voice and the screen change together.", hi: "आवाज़ और स्क्रीन दोनों साथ बदलते हैं।" }]
+                },
+                {
+                    key: "staff", t: { en: "I need bank staff", hi: "बैंक कर्मचारी की मदद चाहिए" }, lines: [
+                        { en: "Walk to the bank counter and ask for help.", hi: "बैंक काउंटर पर जाकर मदद माँगें।" },
+                        { en: "Do not leave your passbook or documents on the kiosk.", hi: "अपनी पासबुक या दस्तावेज़ कियोस्क पर न छोड़ें।" },
+                        { en: "Never tell anyone your PIN or OTP.", hi: "अपना पिन या ओटीपी किसी को न बताएँ।" }]
+                }
+            ];
+            const T = {
+                hint: { en: "Press a number to hear the answer.", hi: "जवाब सुनने के लिए कोई नंबर दबाएँ।" },
+                intro: { en: "I am here to help. Press the number of the question you have.", hi: "मैं मदद के लिए यहाँ हूँ। जो सवाल है, उसका नंबर दबाएँ।" }
+            };
+            let sel = null;
+
+            function topicSpeech(t, n) {
+                return Kiosk.lang === "hi" ? `${Kiosk.t(t.t)} के लिए नंबर ${n} दबाएँ।` : `For ${Kiosk.t(t.t)}, press number ${n}.`;
+            }
+            function drawDetail(activeLine) {
+                const t = TOPICS.find((x) => x.key === sel);
+                $("detail").innerHTML = t
+                    ? `<h2 class="display">${Kiosk.t(t.t)}</h2><ol>${t.lines.map((l, i) => `<li class="${i === activeLine ? "now" : ""}"><b>${i + 1}</b><span>${Kiosk.t(l)}</span></li>`).join("")}</ol>`
+                    : `<p class="hint">${Kiosk.t(T.hint)}</p>`;
+            }
+            function draw() {
+                Kiosk.setTitle({ en: "Help & Guide", hi: "मदद और जानकारी" });
+                Kiosk.stepper([], 0);
+                $("topics").innerHTML = TOPICS.map((t, i) =>
+                    `<button type="button" class="topic ${t.key === sel ? "on" : ""}" data-key="${t.key}"><span class="num">${i + 1}</span><span>${Kiosk.t(t.t)}</span></button>`).join("");
+                document.querySelectorAll(".topic").forEach((b) => b.addEventListener("click", () => choose(b.dataset.key)));
+                drawDetail(-1);
+            }
+
+            // highlight whichever topic the voice is currently talking about
+            Kiosk.spotFn = (key) => document.querySelectorAll(".topic").forEach((b) => b.classList.toggle("spot", b.dataset.key === key && !sel));
+
+            function render() {
+                draw();
+                if (sel) { choose(sel); return; }
+                Kiosk.say([{ text: Kiosk.t(T.intro) }, ...TOPICS.map((t, i) => ({ text: topicSpeech(t, i + 1), key: t.key }))]);
+            }
+            function choose(key) {
+                sel = key; draw();
+                const t = TOPICS.find((x) => x.key === key);
+                // read the title, then each line; the line being spoken is highlighted
+                const items = [{ text: Kiosk.t(t.t), onStart: () => drawDetail(-1) },
+                ...t.lines.map((l, i) => ({ text: Kiosk.t(l), onStart: () => drawDetail(i) }))];
+                Kiosk.say(items, { repeat: 0, onDone: () => drawDetail(-1) });
+            }
+
+            Kiosk.init(render);
+        })();
+    </script>
+
+</body>
+
+</html>

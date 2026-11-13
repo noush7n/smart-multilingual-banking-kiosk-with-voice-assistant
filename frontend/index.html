@@ -1,73 +1,898 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Smart Banking Kiosk - Setup Test</title>
+  <title>Smart Banking Kiosk</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Baloo+2:wght@600;700;800&family=Noto+Sans+Devanagari:wght@500;700&display=swap"
+    rel="stylesheet">
+
   <style>
+    :root {
+      --ink: #2b2140;
+      --night: #46395f;
+      --paper: #f5f2f9;
+      --sand: #e9ddbf;
+      --amber: #c98a1e;
+      --gap: clamp(.6rem, 1.9vh, 1.25rem);
+      --radius: clamp(18px, 3vh, 28px);
+    }
+
+    /* ===== The page never scrolls: it always fits the screen ===== */
+    html,
     body {
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: "Atkinson Hyperlegible", "Noto Sans Devanagari", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: radial-gradient(#d8cfe6 1.4px, transparent 1.4px);
+      background-size: 26px 26px;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .display {
+      font-family: "Baloo 2", "Noto Sans Devanagari", sans-serif;
+    }
+
+    html[lang="hi"] body {
+      line-height: 1.45;
+    }
+
+    :focus-visible {
+      outline: 5px solid var(--amber);
+      outline-offset: 4px;
+    }
+
+    .kiosk {
+      height: 100dvh;
+      display: grid;
+      grid-template-columns: minmax(320px, 4fr) 8fr;
+    }
+
+    /* ================= Welcome panel ================= */
+    .hero {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      background: #46395f;
+      color: #fff;
+      padding: clamp(1rem, 3vh, 2rem) clamp(1rem, 2vw, 2rem);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(.4rem, 1.6vh, 1rem);
+    }
+
+    .hero-art {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .hero>*:not(.hero-art) {
+      position: relative;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .9rem;
+    }
+
+    .brand-mark {
+      width: clamp(44px, 7vh, 56px);
+      height: clamp(44px, 7vh, 56px);
+      flex: none;
+    }
+
+    .brand-name {
+      font-size: clamp(1.2rem, 2.8vh, 1.45rem);
+      font-weight: 700;
+      line-height: 1.1;
       margin: 0;
-      font-family: "Segoe UI", "Nirmala UI", Arial, sans-serif;
-      background: #F3EFF5;
-      color: #30283A;
     }
-    header {
-      background: #51445F;
-      color: #FFFFFF;
-      padding: 20px 32px;
-      font-size: 1.5rem;
+
+    .brand-sub {
+      font-size: 1rem;
+      color: #d3c9e3;
+      margin: 0;
     }
-    main {
-      max-width: 640px;
-      margin: 40px auto;
-      padding: 0 16px;
+
+    /* --- voice guide: an orb that "talks", with live captions --- */
+    .stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(.9rem, 2.6vh, 1.6rem);
     }
-    .card {
-      background: #FFFFFF;
-      border: 1px solid #D9D1DF;
-      border-radius: 12px;
-      padding: 28px;
-      box-shadow: 0 2px 8px rgba(48, 40, 58, 0.08);
+
+    .orb-wrap {
+      position: relative;
+      width: clamp(110px, 25vh, 220px);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      flex: none;
     }
-    button {
-      background: #51445F;
-      color: #FFFFFF;
+
+    .orb-wave {
+      position: absolute;
+      inset: 6%;
+      border-radius: 50%;
+      border: 3px solid rgba(233, 221, 191, .6);
+      opacity: 0;
+    }
+
+    .is-speaking .orb-wave {
+      animation: wave 2.4s ease-out infinite;
+    }
+
+    .orb-wave.w2 {
+      animation-delay: .8s;
+    }
+
+    .orb-wave.w3 {
+      animation-delay: 1.6s;
+    }
+
+    @keyframes wave {
+      0% {
+        transform: scale(1);
+        opacity: .75;
+      }
+
+      100% {
+        transform: scale(1.6);
+        opacity: 0;
+      }
+    }
+
+    .orb {
+      width: 80%;
+      height: 80%;
+      border-radius: 50%;
+      background: var(--sand);
+      box-shadow: 0 0 0 clamp(6px, 1.3vh, 12px) rgba(233, 221, 191, .22), 0 18px 40px rgba(20, 12, 36, .4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5%;
+      position: relative;
+    }
+
+    .bar {
+      width: 7.5%;
+      height: var(--h);
+      border-radius: 99px;
+      background: #46395f;
+    }
+
+    .is-speaking .bar {
+      animation: eq .9s ease-in-out infinite;
+      animation-delay: var(--d);
+    }
+
+    @keyframes eq {
+
+      0%,
+      100% {
+        transform: scaleY(.45);
+      }
+
+      50% {
+        transform: scaleY(1.15);
+      }
+    }
+
+    .caption {
+      position: relative;
+      width: 100%;
+      max-width: 430px;
+      margin: 0;
+      min-height: 2.9em;
+      background: #574874;
+      border: 2px solid #7d6ca0;
+      border-radius: 22px;
+      padding: clamp(.55rem, 1.7vh, .95rem) 1rem;
+      font-size: clamp(1.1rem, 2.7vh, 1.45rem);
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .65rem;
+      text-align: center;
+    }
+
+    .caption::before {
+      content: "";
+      position: absolute;
+      top: -11px;
+      left: calc(50% - 10px);
+      width: 18px;
+      height: 18px;
+      background: #574874;
+      border-left: 2px solid #7d6ca0;
+      border-top: 2px solid #7d6ca0;
+      transform: rotate(45deg);
+    }
+
+    .dot {
+      flex: none;
+      width: 1.15em;
+      height: 1.15em;
+      border-radius: 50%;
+      background: var(--dot, var(--sand));
+      border: 3px solid #fff;
+    }
+
+    .dot[hidden] {
+      display: none;
+    }
+
+    .greet-main {
+      font-size: clamp(2.2rem, 7vh, 4rem);
+      font-weight: 800;
+      line-height: 1;
+      margin: 0 0 .25rem;
+    }
+
+    .greet-alt {
+      font-size: clamp(1.1rem, 2.8vh, 1.5rem);
+      color: #d3c9e3;
+      margin: 0 0 clamp(.4rem, 1.4vh, .9rem);
+    }
+
+    .time-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .4rem .9rem;
+    }
+
+    .clock {
+      font-size: clamp(1.5rem, 4.2vh, 2.2rem);
+      font-weight: 700;
+      line-height: 1;
+      background: rgba(255, 255, 255, .13);
+      border-radius: 16px;
+      padding: .25rem .8rem;
+    }
+
+    .date {
+      font-size: clamp(1rem, 2.2vh, 1.15rem);
+      color: #d3c9e3;
+    }
+
+    .hero-actions {
+      margin-top: clamp(.2rem, 1vh, .6rem);
+      display: grid;
+      gap: .7rem;
+    }
+
+    .btn-listen {
+      min-height: clamp(58px, 8.5vh, 70px);
+      border-radius: 22px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      background: var(--sand);
+      color: var(--ink);
+      border: 4px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .7rem;
+    }
+
+    .btn-listen:hover {
+      background: #f3e9cd;
+      color: var(--ink);
+    }
+
+    .is-speaking .btn-listen {
+      border-color: var(--amber);
+    }
+
+    .lang {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 26px;
+      background: rgba(20, 12, 36, .35);
+      border: 2px solid #7d6ca0;
+    }
+
+    .lang .btn {
+      min-height: clamp(50px, 7.6vh, 62px);
+      font-size: 1.25rem;
+      font-weight: 700;
       border: 0;
-      border-radius: 10px;
-      padding: 16px 28px;
-      font-size: 1.1rem;
-      cursor: pointer;
+      color: #fff;
+      background: transparent;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    button:hover { background: #6B5B7E; }
-    #result { margin-top: 20px; font-weight: 600; }
-    .ok  { color: #4F8065; }
-    .bad { color: #B6535C; }
+
+    .lang .btn-check:checked+.btn {
+      background: #fff;
+      color: var(--ink);
+    }
+
+    /* ================= Services ================= */
+    .main {
+      height: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(.8rem, 2.8vh, 2rem) clamp(1rem, 2.4vw, 2.25rem);
+    }
+
+    .prompt {
+      font-size: clamp(1.7rem, 4.6vh, 2.7rem);
+      font-weight: 700;
+      margin: 0;
+      line-height: 1.12;
+    }
+
+    .prompt-sub {
+      font-size: clamp(1rem, 2.5vh, 1.3rem);
+      color: #62557f;
+      margin: .2rem 0 var(--gap);
+    }
+
+    .grid {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      gap: var(--gap);
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+    }
+
+    .svc {
+      position: relative;
+      min-height: 0;
+      border-radius: var(--radius);
+      transition: transform .2s ease;
+    }
+
+    .svc-link {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: clamp(.8rem, 1.6vw, 1.4rem);
+      padding: 0 clamp(.9rem, 1.8vw, 1.5rem);
+      border-radius: var(--radius);
+      background: var(--c);
+      color: #fff;
+      text-decoration: none;
+      box-shadow: 0 6px 0 var(--cd), 0 14px 26px rgba(43, 33, 64, .16);
+      transition: transform .12s ease, box-shadow .12s ease;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .svc-link::after {
+      content: "";
+      position: absolute;
+      right: -50px;
+      top: -50px;
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      border: 24px solid rgba(255, 255, 255, .09);
+      pointer-events: none;
+    }
+
+    .svc-link:hover {
+      color: #fff;
+    }
+
+    .svc-link:active {
+      transform: translateY(5px);
+      box-shadow: 0 1px 0 var(--cd), 0 6px 14px rgba(43, 33, 64, .16);
+    }
+
+    .svc.spot {
+      transform: scale(1.025);
+      z-index: 3;
+    }
+
+    .svc.spot .svc-link {
+      outline: 6px solid var(--ink);
+      outline-offset: 5px;
+    }
+
+    .icon-tile {
+      flex: none;
+      width: clamp(56px, 11vh, 88px);
+      height: clamp(56px, 11vh, 88px);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, .17);
+      display: grid;
+      place-items: center;
+    }
+
+    .icon-tile svg {
+      width: 62%;
+      height: 62%;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .svc-text {
+      min-width: 0;
+      position: relative;
+    }
+
+    .chip-row {
+      min-height: 2.1rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: clamp(.95rem, 2.2vh, 1.1rem);
+      border-radius: 999px;
+      padding: .15rem .8rem .15rem .4rem;
+    }
+
+    .chip i {
+      width: 1.05rem;
+      height: 1.05rem;
+      border-radius: 50%;
+      background: var(--c);
+      border: 2px solid var(--cd);
+    }
+
+    .svc-title {
+      font-size: clamp(1.45rem, 3.5vh, 2.1rem);
+      font-weight: 700;
+      line-height: 1.08;
+      margin: 0;
+    }
+
+    .svc-alt {
+      font-size: clamp(.95rem, 2.1vh, 1.1rem);
+      opacity: .88;
+      margin: .1rem 0 .25rem;
+    }
+
+    .svc-desc {
+      font-size: clamp(1rem, 2.3vh, 1.2rem);
+      margin: 0;
+      line-height: 1.25;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+
+    /* colour coding: the spoken colour names match these */
+    .svc.blue {
+      --c: #2f5d8a;
+      --cd: #1f4467;
+    }
+
+    .svc.green {
+      --c: #2f7a4f;
+      --cd: #1f5736;
+    }
+
+    .svc.orange {
+      --c: #a84e14;
+      --cd: #7a3809;
+    }
+
+    .svc.pink {
+      --c: #a1456f;
+      --cd: #752f50;
+    }
+
+    .svc.yellow {
+      --c: #e3c25a;
+      --cd: #b8972f;
+      grid-column: 1 / -1;
+    }
+
+    .svc.yellow .svc-link {
+      color: var(--ink);
+    }
+
+    .svc.yellow .svc-link::after {
+      border-color: rgba(43, 33, 64, .07);
+    }
+
+    .svc.yellow .icon-tile {
+      background: rgba(43, 33, 64, .1);
+    }
+
+    .svc.yellow .icon-tile svg {
+      stroke: var(--ink);
+    }
+
+    .svc.yellow .chip {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .svc.yellow .chip i {
+      border-color: #fff;
+    }
+
+    .svc.yellow .svc-desc {
+      -webkit-line-clamp: 1;
+    }
+
+    /* ===== Tall / narrow screens (portrait kiosk): panel becomes a top band, cards stack ===== */
+    @media (max-width: 900px) {
+      .kiosk {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+
+      .hero {
+        height: auto;
+        padding: .8rem 1rem;
+        gap: .6rem;
+      }
+
+      .brand-sub,
+      .greet-alt,
+      .date {
+        display: none;
+      }
+
+      .stage {
+        flex: none;
+        flex-direction: row;
+        gap: .9rem;
+      }
+
+      .orb-wrap {
+        width: 84px;
+      }
+
+      .caption {
+        max-width: none;
+        text-align: left;
+        justify-content: flex-start;
+        font-size: 1.15rem;
+        min-height: 0;
+      }
+
+      .caption::before {
+        display: none;
+      }
+
+      .greet {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .greet-main {
+        font-size: 2.1rem;
+        margin: 0;
+      }
+
+      .hero-actions {
+        grid-template-columns: 1fr 1fr;
+        margin-top: 0;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(5, minmax(0, 1fr));
+      }
+
+      .svc.yellow {
+        grid-column: auto;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .svc,
+      .svc-link {
+        transition: none;
+      }
+
+      .is-speaking .orb-wave,
+      .is-speaking .bar {
+        animation: none;
+      }
+    }
   </style>
 </head>
+
 <body>
-  <header>Smart Multilingual Banking Kiosk (Demo)</header>
-  <main>
-    <div class="card">
-      <h1>Setup test</h1>
-      <p>Hindi text check: स्वागत है — बैंकिंग कियोस्क में आपका स्वागत है</p>
-      <button id="testBtn">Test backend connection</button>
-      <p id="result"></p>
-    </div>
-  </main>
+  <div class="kiosk">
+
+    <!-- ============ Welcome panel ============ -->
+    <aside class="hero" id="hero">
+      <svg class="hero-art" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <circle cx="390" cy="70" r="170" fill="#54456f" />
+        <circle cx="390" cy="70" r="112" fill="none" stroke="#6d5d8c" stroke-width="2" />
+        <circle cx="10" cy="740" r="210" fill="#3b2f52" />
+        <circle cx="10" cy="740" r="140" fill="none" stroke="#5a4a77" stroke-width="2" />
+        <path d="M-20 440 C 70 380, 150 500, 250 440 S 410 400, 440 450" fill="none" stroke="#6d5d8c" stroke-width="3"
+          stroke-dasharray="2 12" stroke-linecap="round" />
+        <circle cx="340" cy="560" r="7" fill="#e9ddbf" opacity=".5" />
+        <circle cx="60" cy="250" r="5" fill="#e9ddbf" opacity=".4" />
+        <circle cx="300" cy="300" r="4" fill="#a496c2" opacity=".6" />
+      </svg>
+
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 56 56" aria-hidden="true">
+          <rect width="56" height="56" rx="16" fill="#e9ddbf" />
+          <path d="M10 24 L28 11 L46 24 Z" fill="#46395f" />
+          <rect x="14" y="27" width="5" height="14" rx="1.5" fill="#46395f" />
+          <rect x="25.5" y="27" width="5" height="14" rx="1.5" fill="#46395f" />
+          <rect x="37" y="27" width="5" height="14" rx="1.5" fill="#46395f" />
+          <rect x="10" y="44" width="36" height="4" rx="2" fill="#46395f" />
+        </svg>
+        <div>
+          <p class="brand-name display" data-i18n="brand">Smart Bank Kiosk</p>
+          <p class="brand-sub" data-i18n="brandSub">Self-service, no cash</p>
+        </div>
+      </div>
+
+      <div class="stage" aria-live="polite">
+        <div class="orb-wrap" aria-hidden="true">
+          <span class="orb-wave"></span><span class="orb-wave w2"></span><span class="orb-wave w3"></span>
+          <div class="orb">
+            <span class="bar" style="--h:26%;--d:0s"></span><span class="bar" style="--h:46%;--d:.15s"></span><span
+              class="bar" style="--h:66%;--d:.3s"></span><span class="bar" style="--h:46%;--d:.45s"></span><span
+              class="bar" style="--h:26%;--d:.6s"></span>
+          </div>
+        </div>
+        <p class="caption"><span class="dot" id="capDot" hidden></span><span id="capText"></span></p>
+      </div>
+
+      <div class="greet">
+        <h1 class="greet-main display" id="greetMain">Welcome</h1>
+        <p class="greet-alt" id="greetAlt" lang="hi">नमस्ते</p>
+        <div class="time-row"><span class="clock display" id="clock">--:--</span><span class="date" id="date"></span>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button type="button" class="btn btn-listen" id="listenBtn">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M11 5 6 9H2v6h4l5 4z" />
+            <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+            <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+          </svg>
+          <span data-i18n="listen">Listen to options</span>
+        </button>
+        <div class="lang" role="group" aria-label="Language / भाषा">
+          <input type="radio" class="btn-check" name="lang" id="langEn" autocomplete="off" checked>
+          <label class="btn" for="langEn">English</label>
+          <input type="radio" class="btn-check" name="lang" id="langHi" autocomplete="off">
+          <label class="btn" for="langHi" lang="hi">हिन्दी</label>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ============ Services ============ -->
+    <main class="main">
+      <h2 class="prompt display" id="prompt"></h2>
+      <p class="prompt-sub" id="promptSub"></p>
+      <div class="grid" id="grid"></div>
+    </main>
+  </div>
 
   <script>
-    document.getElementById("testBtn").addEventListener("click", async () => {
-      const out = document.getElementById("result");
-      try {
-        const response = await fetch("/api/health");
-        const data = await response.json();
-        out.textContent = "Backend says: " + data.message;
-        out.className = "ok";
-      } catch (error) {
-        out.textContent = "Could not reach the backend.";
-        out.className = "bad";
+    (() => {
+      "use strict";
+
+      /* ---------------- Content ---------------- */
+      const T = {
+        en: {
+          brand: "Smart Bank Kiosk", brandSub: "Self-service, no cash", listen: "Listen to options",
+          prompt: "What would you like to do?", promptSub: "Press the button that matches the colour.",
+          locale: "en-IN", idle: "Hello! I am your voice guide.",
+          welcome: "Welcome to the Smart Bank Kiosk. Please press the button of the colour you want.",
+          greet: ["Good morning", "Good afternoon", "Good evening"]
+        },
+        hi: {
+          brand: "स्मार्ट बैंक कियोस्क", brandSub: "स्वयं सेवा, नकद नहीं", listen: "विकल्प सुनें",
+          prompt: "आप क्या करना चाहते हैं?", promptSub: "रंग के अनुसार बटन दबाएँ।",
+          locale: "hi-IN", idle: "नमस्ते! मैं आपका आवाज़ सहायक हूँ।",
+          welcome: "स्मार्ट बैंक कियोस्क में आपका स्वागत है। कृपया जो काम करना है, उसके रंग का बटन दबाएँ।",
+          greet: ["सुप्रभात", "नमस्कार", "शुभ संध्या"]
+        }
+      };
+
+      // Order matters: this is also the order in which the voice reads the options.
+      const SERVICES = [
+        {
+          key: "passbook", color: "blue", href: "/passbook",
+          icon: '<rect x="9" y="6" width="26" height="34" rx="3"/><path d="M14 14h16M14 20h16M14 26h10"/><path d="M38 24v14m0 0-5-5m5 5 5-5"/>',
+          en: { t: "Print Passbook", c: "Blue", d: "Update your passbook entries", say: "To print your passbook, press the blue button." },
+          hi: { t: "पासबुक छपवाएँ", c: "नीला", d: "पासबुक में नई एंट्री छपवाएँ", say: "पासबुक छपवाने के लिए नीला बटन दबाएँ।" }
+        },
+        {
+          key: "statement", color: "green", href: "/statement",
+          icon: '<path d="M12 5h24v38l-4-3-4 3-4-3-4 3-4-3-4 3z"/><path d="M18 14h12M18 21h12M18 28h7"/>',
+          en: { t: "Mini Statement", c: "Green", d: "See your balance and recent transactions", say: "To see your balance and mini statement, press the green button." },
+          hi: { t: "मिनी स्टेटमेंट", c: "हरा", d: "बैलेंस और हाल का लेन-देन देखें", say: "बैलेंस और मिनी स्टेटमेंट देखने के लिए हरा बटन दबाएँ।" }
+        },
+        {
+          key: "cheque", color: "orange", href: "/cheque",
+          icon: '<rect x="4" y="11" width="40" height="26" rx="4"/><path d="M10 19h14M10 25h8"/><path d="M28 31c3-6 5-6 7-2 1.5 3 3 1 4-2"/>',
+          en: { t: "Deposit Cheque", c: "Orange", d: "Scan your cheque to deposit it", say: "To deposit a cheque, press the orange button." },
+          hi: { t: "चेक जमा करें", c: "नारंगी", d: "चेक स्कैन करके जमा करें", say: "चेक जमा करने के लिए नारंगी बटन दबाएँ।" }
+        },
+        {
+          key: "kyc", color: "pink", href: "/kyc",
+          icon: '<rect x="4" y="9" width="40" height="30" rx="4"/><circle cx="17" cy="21" r="4.5"/><path d="M9 33c1-5 5-7 8-7s7 2 8 7"/><path d="M29 20h11M29 27h8"/>',
+          en: { t: "Scan Documents", c: "Pink", d: "Aadhaar, PAN and KYC check", say: "To scan your Aadhaar, PAN or other documents, press the pink button." },
+          hi: { t: "दस्तावेज़ स्कैन करें", c: "गुलाबी", d: "आधार, पैन और केवाईसी जाँच", say: "आधार, पैन या दूसरे दस्तावेज़ स्कैन करने के लिए गुलाबी बटन दबाएँ।" }
+        },
+        {
+          key: "help", color: "yellow", href: "/help",
+          icon: '<path d="M6 10a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v20a4 4 0 0 1-4 4H20l-9 8v-8a4 4 0 0 1-5-4z"/><path d="M19 17c0-3 2-4.5 5-4.5s5 1.6 5 4c0 3-5 3.5-5 7"/><circle cx="24" cy="28.5" r="1"/>',
+          en: { t: "Help & Guide", c: "Yellow", d: "Hear how to use this kiosk", say: "For help, press the yellow button." },
+          hi: { t: "मदद और जानकारी", c: "पीला", d: "कियोस्क कैसे चलाएँ, यह सुनें", say: "मदद के लिए पीला बटन दबाएँ।" }
+        }
+      ];
+
+      /* ---------------- Helpers / state ---------------- */
+      const $ = (id) => document.getElementById(id);
+      const get = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+      const set = (k, v) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } };
+      let lang = get("kioskLang") === "hi" ? "hi" : "en";
+      const other = () => (lang === "en" ? "hi" : "en");
+
+      /* ---------------- Build the cards once ---------------- */
+      $("grid").innerHTML = SERVICES.map(s => `
+      <div class="svc ${s.color}" data-key="${s.key}">
+        <a class="svc-link" href="${s.href}">
+          <span class="icon-tile"><svg viewBox="0 0 48 48" aria-hidden="true">${s.icon}</svg></span>
+          <span class="svc-text">
+            <span class="chip-row"><span class="chip"><i></i><span class="chip-label"></span></span></span>
+            <span class="svc-title display d-block"></span>
+            <span class="svc-alt d-block"></span>
+            <span class="svc-desc d-block"></span>
+          </span>
+        </a>
+      </div>`).join("");
+
+      /* ---------------- Voice output (one-way guidance) ---------------- */
+      const synth = window.speechSynthesis;
+      let voices = [], token = 0, started = false, idleTimer = null;
+      if (synth) { voices = synth.getVoices(); synth.onvoiceschanged = () => { voices = synth.getVoices(); }; }
+
+      function pickVoice() {
+        const code = lang === "hi" ? "hi" : "en";
+        const m = voices.filter(v => v.lang.toLowerCase().startsWith(code));
+        return (lang === "en" && m.find(v => v.lang.toLowerCase() === "en-in")) || m[0] || null;
       }
-    });
+      function spotlight(key) {
+        document.querySelectorAll(".svc").forEach(c => c.classList.toggle("spot", c.dataset.key === key));
+      }
+      // Live caption in the welcome panel: shows the sentence being spoken, with the colour of the matching card.
+      function setCaption(text, key) {
+        const dot = $("capDot");
+        if (text) {
+          $("capText").textContent = text;
+          const card = key && document.querySelector(`.svc[data-key="${key}"]`);
+          dot.hidden = !card;
+          if (card) dot.style.setProperty("--dot", getComputedStyle(card).getPropertyValue("--c").trim());
+        } else {
+          $("capText").textContent = T[lang].idle;
+          dot.hidden = true;
+        }
+      }
+      function clearSpeaking() { spotlight(null); $("hero").classList.remove("is-speaking"); setCaption(null); }
+      function stopAll() { token++; clearTimeout(idleTimer); if (synth) synth.cancel(); clearSpeaking(); }
+
+      // Reads a list of {text, key} one after another; the matching card is highlighted while it is spoken.
+      function speakSequence(list) {
+        if (!synth) return;
+        synth.cancel();
+        const mine = ++token;
+        const next = (i) => {
+          if (mine !== token) return;
+          if (i >= list.length) { clearSpeaking(); scheduleRepeat(); return; }
+          const u = new SpeechSynthesisUtterance(list[i].text);
+          u.lang = T[lang].locale; u.rate = 0.82;
+          const v = pickVoice(); if (v) u.voice = v;
+          u.onstart = () => { started = true; if (mine === token) { spotlight(list[i].key || null); $("hero").classList.add("is-speaking"); setCaption(list[i].text, list[i].key); } };
+          u.onend = () => next(i + 1);
+          u.onerror = () => { if (mine === token) clearSpeaking(); };
+          synth.speak(u);
+        };
+        next(0);
+      }
+      // The assistant repeats the guidance by itself if nobody touches the screen for a while.
+      function scheduleRepeat() { clearTimeout(idleTimer); idleTimer = setTimeout(speakAll, 25000); }
+      function speakAll() {
+        speakSequence([{ text: T[lang].welcome }, ...SERVICES.map(s => ({ text: s[lang].say, key: s.key }))]);
+      }
+
+      /* ---------------- Render ---------------- */
+      function hourSlot() { const h = new Date().getHours(); return h < 12 ? 0 : h < 17 ? 1 : 2; }
+      function tick() {
+        const now = new Date();
+        $("clock").textContent = now.toLocaleTimeString(T[lang].locale, { hour: "2-digit", minute: "2-digit" });
+        $("date").textContent = now.toLocaleDateString(T[lang].locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      }
+      function render() {
+        const t = T[lang], o = other();
+        document.documentElement.lang = lang;
+        document.querySelectorAll("[data-i18n]").forEach(n => { n.textContent = t[n.dataset.i18n]; });
+        $("prompt").textContent = t.prompt;
+        $("promptSub").textContent = t.promptSub;
+        $("greetMain").textContent = t.greet[hourSlot()];
+        $("greetAlt").textContent = T[o].greet[hourSlot()];
+        $("greetAlt").lang = o;
+
+        SERVICES.forEach(s => {
+          const card = document.querySelector(`.svc[data-key="${s.key}"]`);
+          card.querySelector(".chip-label").textContent = s[lang].c;
+          card.querySelector(".svc-title").textContent = s[lang].t;
+          card.querySelector(".svc-alt").textContent = s[o].t;
+          card.querySelector(".svc-alt").lang = o;
+          card.querySelector(".svc-desc").textContent = s[lang].d;
+        });
+        if (!$("hero").classList.contains("is-speaking")) setCaption(null);
+        tick();
+      }
+      function setLang(l) { stopAll(); lang = l; set("kioskLang", l); render(); speakAll(); }
+
+      /* ---------------- Events ---------------- */
+      $("listenBtn").addEventListener("click", speakAll);
+      $("langEn").addEventListener("change", () => setLang("en"));
+      $("langHi").addEventListener("change", () => setLang("hi"));
+      window.addEventListener("pagehide", stopAll);
+      // If the browser blocked the automatic welcome, the first touch anywhere starts it.
+      document.addEventListener("pointerdown", () => {
+        if (!started) speakAll(); else if (!$("hero").classList.contains("is-speaking")) scheduleRepeat();
+      }, true);
+
+      /* ---------------- Init ---------------- */
+      $(lang === "hi" ? "langHi" : "langEn").checked = true;
+      render();
+      setInterval(tick, 15000);
+      speakAll();   // browsers may block this until the first tap; "Listen to options" always works
+    })();
   </script>
 </body>
+
 </html>
